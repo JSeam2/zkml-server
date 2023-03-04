@@ -7,6 +7,7 @@ import subprocess
 
 
 app = Flask("ZKML-server")
+ezkl = "./ezkl/target/release/ezkl"
 
 """
 Simple single session prover
@@ -22,7 +23,6 @@ Upload input data for proving, no validation atm
 def upload_inputdata():
     if request.method == 'POST':
         inputdata = request.files['inputdata']
-
         uuidval = uuid.uuid4()
 
         inputdata.save(os.path.join("inputdata", str(uuidval) + ".json"))
@@ -54,8 +54,10 @@ Generate EVM Proof and sends proof.pf and proof.vk to user
 @app.route('/gen_evm_proof', methods=['POST'])
 def gen_evm_proof():
     if request.method == 'POST':
+        p = subprocess.run([ezkl], capture_output=True, text=True)
+
         return jsonify({
-            "output": str(os.popen("./ezkl/target/release/ezkl").read())
+            "output": p.stdout
         })
 
 if __name__ == "__main__":
