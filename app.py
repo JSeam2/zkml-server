@@ -54,7 +54,9 @@ Generate EVM Proof and sends proof.pf and proof.vk to user
 @app.route('/gen_evm_proof', methods=['POST'])
 def gen_evm_proof():
     if request.method == 'POST':
-        return os.popen("./ezkl/target/release/ezkl").read()
+        return jsonify({
+            "output": str(os.popen("./ezkl/target/release/ezkl").read())
+        })
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
