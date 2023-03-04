@@ -3,6 +3,7 @@ import os
 from werkzeug.utils import secure_filename
 import uuid
 import json
+import subprocess
 
 
 app = Flask("ZKML-server")
@@ -52,7 +53,9 @@ Generate EVM Proof and sends proof.pf and proof.vk to user
 """
 @app.route('/gen_evm_proof', methods=['POST'])
 def gen_evm_proof():
-    pass
+    if request.method == 'POST':
+        print(os.popen("./ezkl/release/ezkl").read())
+        return "OK"
 
 
 if __name__ == "__main__":
