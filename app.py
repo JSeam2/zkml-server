@@ -14,7 +14,7 @@ Simple single session prover
 """
 @app.route('/')
 def index():
-    return "Welcome to the ZKML-server"
+    return "Extend your smart contracts with Gelkin"
 
 """
 Upload input data for proving, no validation atm
@@ -32,6 +32,15 @@ def upload_inputdata():
         })
 
 """
+Lists all input data stored on the server
+"""
+@app.route('/list/inputdata', methods=['GET'])
+def list_inputdata():
+    return jsonify({
+        "list": os.listdir(os.path.join("inputdata"))
+    })
+
+"""
 Upload onnx model for proving, no validation atm
 """
 @app.route('/upload/onnxmodel', methods=['POST'])
@@ -47,6 +56,16 @@ def upload_onnxmodel():
         return jsonify({
             "file": str(uuidval) + ".onnx"
         })
+
+"""
+Lists all onnx data stored on the server
+"""
+@app.route('/list/onnxmodel', methods=['GET'])
+def list_onnxmodel():
+    return jsonify({
+        "list": os.listdir(os.path.join("onnxmodel"))
+    })
+
 
 """
 Generate EVM Proof and sends proof.pf and proof.vk to user
