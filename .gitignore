@@ -4,3 +4,5 @@ ezkl/
 onnxmodel/
 generated/
 inputdata/
+mnemonic.txt
+rpc_endpoint.py

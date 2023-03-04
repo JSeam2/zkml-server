@@ -1,0 +1,5 @@
+# RPC endpoints
+ETH_MAINNET = "https://eth-mainnet.gateway.pokt.network/v1/lb/<add here>"
+ETH_GOERLI = "https://eth-goerli.gateway.pokt.network/v1/lb/<add here"
+POLYGON_MUMBAI = "https://polygon-mumbai.gateway.pokt.network/v1/lb/<add here>"
+MANTLE_TESTNET = "https://https://rpc.testnet.mantle.xyz"
