@@ -36,8 +36,10 @@ Lists all input data stored on the server
 """
 @app.route('/list/inputdata', methods=['GET'])
 def list_inputdata():
+    filelist = os.listdir(os.path.join('inputdata'))
+    filelist.remove('.gitkeep')
     return jsonify({
-        "list": os.listdir(os.path.join("inputdata")).remove(".gitkeep")
+        "list": filelist
     })
 
 """
@@ -62,8 +64,10 @@ Lists all onnx data stored on the server
 """
 @app.route('/list/onnxmodel', methods=['GET'])
 def list_onnxmodel():
+    filelist = os.listdir(os.path.join('onnxmodel'))
+    filelist.remove('.gitkeep')
     return jsonify({
-        "list": os.listdir(os.path.join("onnxmodel")).remove(".gitkeep")
+        "list": filelist
     })
 
 
