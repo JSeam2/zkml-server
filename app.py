@@ -86,11 +86,11 @@ def list_onnxmodel():
 """
 Download input data stored on the server
 """
-@app.route('/download/inputdata/<filename>', methods=['GET'])
-def download_inputdata(filename):
+@app.route('/download/onnxmodel/<filename>', methods=['GET'])
+def download_onnxmodel(filename):
     sanitized_filename = str(filename)
 
-    return send_file(os.path.join("inputdata", sanitized_filename))
+    return send_file(os.path.join("onnxmodel", sanitized_filename))
 
 """
 Sets the model and input to be used
@@ -118,8 +118,6 @@ def set_model_input():
             "loaded_inputdata": loaded_inputdata,
             "loaded_onnxmodel": loaded_onnxmodel
         })
-
-
 
 
 """
