@@ -1,6 +1,8 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import os
 from werkzeug.utils import secure_filename
+import uuid
+import json
 
 
 app = Flask("ZKML-server")
@@ -13,19 +15,37 @@ def index():
     return "Welcome to the ZKML-server"
 
 """
-Upload files for proving
+Upload input data for proving, no validation atm
 """
-@app.route('/upload', methods=['POST'])
-def upload():
+@app.route('/upload/inputdata', methods=['POST'])
+def upload_inputdata():
+    if request.method == 'POST':
+        inputdata = request.files['inputdata']
+
+        uuidval = uuid.uuid4()
+
+        inputdata.save(os.path.join("inputdata", str(uuidval) + ".json"))
+
+        return jsonify({
+            "file": str(uuidval) + ".json"
+        })
+
+"""
+Upload onnx model for proving, no validation atm
+"""
+@app.route('/upload/onnxmodel', methods=['POST'])
+def upload_onnxmodel():
     if request.method == 'POST':
         # save the single onnx file
-        onnx = request.files['onnx']
-        inputJson = request.files['inputJson']
-        onnx.save(os.path.join("uploads", secure_filename(onnx.filename)))
-        inputJson.save(os.path.join("uploads", secure_filename(inputJson.filename)))
+        inputdata = request.files['onnxmodel']
 
-        return "Successfully uploaded"
+        uuidval = uuid.uuid4()
 
+        inputdata.save(os.path.join("onnxmodel", str(uuidval) + ".onnx"))
+
+        return jsonify({
+            "file": str(uuidval) + ".onnx"
+        })
 
 """
 Generate EVM Proof and sends proof.pf and proof.vk to user
@@ -36,4 +56,4 @@ def gen_evm_proof():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", port=80, debug=True)
