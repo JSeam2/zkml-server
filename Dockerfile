@@ -21,25 +21,17 @@ RUN apt-get install -y \
 RUN curl https://sh.rustup.rs -sSf | bash -s -- --default-toolchain nightly -y
 
 # copy project
-COPY ./ezkl /app/ezkl
-
-# Set new work directory
-WORKDIR /app/ezkl
+COPY . /app
 
 # Build ezkl
-RUN ~/.cargo/bin/cargo build --release
-
-# Set new work directory
-WORKDIR /app
+RUN ~/.cargo/bin/cargo build --release --manifest-path ./ezkl/Cargo.toml
 
 # install dependencies
 RUN set -ex && \
     pip install --upgrade pip
-COPY ./requirements.txt /app/requirements.txt
 RUN set -ex && \
     pip install -r requirements.txt
 
-# copy project
-COPY . /app
+RUN gunicorn -w 4 -b 0.0.0.0:5000 app:app
 
 
