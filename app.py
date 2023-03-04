@@ -53,7 +53,7 @@ Download input data stored on the server
 def download_inputdata(filename):
     sanitized_filename = str(filename)
 
-    return send_file(os.path.join("inputdata", sanitized_filename))
+    return send_file(os.path.join("inputdata", sanitized_filename), as_attachment=True)
 
 """
 Upload onnx model for proving, no validation atm
@@ -90,7 +90,7 @@ Download input data stored on the server
 def download_onnxmodel(filename):
     sanitized_filename = str(filename)
 
-    return send_file(os.path.join("onnxmodel", sanitized_filename))
+    return send_file(os.path.join("onnxmodel", sanitized_filename), as_attachment=True)
 
 """
 Sets the model and input to be used
