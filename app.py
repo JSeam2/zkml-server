@@ -57,7 +57,8 @@ def gen_evm_proof():
         p = subprocess.run([ezkl], capture_output=True, text=True)
 
         return jsonify({
-            "output": p.stdout
+            "stdout": p.stdout,
+            "stderr": p.stderr
         })
 
 if __name__ == "__main__":
