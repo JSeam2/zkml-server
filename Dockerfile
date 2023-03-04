@@ -10,15 +10,27 @@ ENV PYTHONUNBUFFERED 1
 
 # Rust related stuff
 # Update new packages
-# RUN apt-get update
+RUN apt-get update
 
 # install rust
-# RUN apt-get install -y \
-#     build-essential \
-#     curl
+RUN apt-get install -y \
+    build-essential \
+    curl
 
 # Get Rust
-# RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
+RUN curl https://sh.rustup.rs -sSf | bash -s -- --default-toolchain nightly -y
+
+# copy project
+COPY ./ezkl /app/ezkl
+
+# Set new work directory
+WORKDIR /app/ezkl
+
+# Build ezkl
+RUN ~/.cargo/bin/cargo build --release
+
+# Set new work directory
+WORKDIR /app
 
 # install dependencies
 RUN set -ex && \
