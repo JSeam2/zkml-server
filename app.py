@@ -1,13 +1,17 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 import os
-from werkzeug.utils import secure_filename
 import uuid
-import json
 import subprocess
 
 
 app = Flask("ZKML-server")
 ezkl = "./ezkl/target/release/ezkl"
+
+# flags to only allow for only one proof
+# the server cannot accomodate more than one proof
+loaded_onnxmodel = None
+loaded_inputdata = None
+running = False
 
 """
 Simple single session prover
@@ -43,6 +47,15 @@ def list_inputdata():
     })
 
 """
+Download input data stored on the server
+"""
+@app.route('/download/inputdata/<filename>', methods=['GET'])
+def download_inputdata(filename):
+    sanitized_filename = str(filename)
+
+    return send_file(os.path.join("inputdata", sanitized_filename))
+
+"""
 Upload onnx model for proving, no validation atm
 """
 @app.route('/upload/onnxmodel', methods=['POST'])
@@ -69,6 +82,44 @@ def list_onnxmodel():
     return jsonify({
         "list": filelist
     })
+
+"""
+Download input data stored on the server
+"""
+@app.route('/download/inputdata/<filename>', methods=['GET'])
+def download_inputdata(filename):
+    sanitized_filename = str(filename)
+
+    return send_file(os.path.join("inputdata", sanitized_filename))
+
+"""
+Sets the model and input to be used
+"""
+@app.route('/run/initialize', methods=['GET', 'POST'])
+def set_model_input():
+    global loaded_inputdata
+    global loaded_onnxmodel
+    if request.method == "POST":
+
+        content = request.json
+        inputdata = content['inputdata'].strip()
+        onnxmodel = content['onnxmodel'].strip()
+
+        loaded_inputdata = os.path.join("inputdata", inputdata)
+        loaded_onnxmodel = os.path.join("onnxmodel", onnxmodel)
+
+        return jsonify({
+            "loaded_inputdata": loaded_inputdata,
+            "loaded_onnxmodel": loaded_onnxmodel
+        })
+
+    if request.method == "GET":
+        return jsonify({
+            "loaded_inputdata": loaded_inputdata,
+            "loaded_onnxmodel": loaded_onnxmodel
+        })
+
+
 
 
 """

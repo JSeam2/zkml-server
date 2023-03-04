@@ -52,6 +52,16 @@ Json from server
 
 -----
 
+- `/download/inputdata/<filename>` [GET]
+
+**Description**
+Downloads an input data file on the server
+
+**Returns**
+input.json file
+
+-----
+
 - `/upload/onnxmodel` [POST]
 
 **Description**
@@ -80,5 +90,39 @@ Json from server
 ```json
 {
     "list": ["uuid4value.onnx", "uuid4value.onnx"]
+}
+```
+
+-----
+
+- `/download/onnxmodel/<filename>` [GET]
+
+**Description**
+Downloads an onnx model file on the server
+
+**Returns**
+onnxmodel.onnx file
+
+-----
+
+- `/run/initialize` [POST, GET]
+
+**Description**
+If POST, Sets the models and input to be used for the proof.
+If GET, returns the loaded models and inputdata
+
+**Params**
+```json
+{
+    "inputdata": "uuid4value.json",
+    "onnxmodel": "uuid4value.onnx"
+}
+```
+
+**Returns**
+```json
+{
+    "inputdata": "path to uuid4value.json",
+    "onnxmodel": "path to uuid4value.onnx"
 }
 ```
