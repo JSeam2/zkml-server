@@ -1,0 +1,26 @@
+version: '3.7'
+
+services:
+    app:
+      restart: always
+      build:
+        context: .
+        dockerfile: Dockerfile
+      ports:
+        - "5000:5000"
+      volumes:
+        - .:/app
+      command: bash -c "gunicorn -w 4 -b 0.0.0.0:5000 app:app"
+    nginx:
+        restart: always
+        build:
+            context: ./nginx
+            dockerfile: Dockerfile
+        ports:
+            - "80:80"
+            - "443:443"
+        depends_on:
+            - app
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf
+            - ./nginx/certificates/:/etc/nginx/ssl/
