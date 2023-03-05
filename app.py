@@ -163,6 +163,9 @@ def gen_evm_proof():
         return "Input Data or Onnx Model not loaded", 400
     if running:
         return "Already running please wait for completion", 400
+    if os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".pf")) or \
+        os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".vk")):
+        return "Proof already exists"
 
     try:
         running = True
