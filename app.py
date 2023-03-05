@@ -223,9 +223,51 @@ def gen_evm_verifier():
                 "-D", os.path.join(os.getcwd(), loaded_inputdata),
                 "-M", os.path.join(os.getcwd(), loaded_onnxmodel),
                 "--deployment-code-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".code"),
-                "--vk-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".vk"),
                 "--params-path=" + os.path.join(os.getcwd(), "kzg.params"),
+                "--vk-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".vk"),
                 "--sol-code-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol"),
+            ],
+            capture_output=True,
+            text=True
+        )
+
+        running = False
+
+        return jsonify({
+            "stdout": p.stdout,
+            "stderr": p.stderr
+        })
+
+    except:
+        err = traceback.format_exc()
+        return "Something bad happened! Please inform the server admin\n" + err, 500
+
+"""
+Verifies proof
+"""
+@app.route('/run/verify', methods=['GET'])
+def gen_evm_verifier():
+    global loaded_inputdata
+    global loaded_onnxmodel
+    global loaded_proofname
+    global running
+    if loaded_inputdata is None or loaded_onnxmodel is None or loaded_proofname is None:
+        return "Input Data or Onnx Model not loaded", 400
+    if running:
+        return "Already running please wait for completion", 400
+    if os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol")) or \
+        os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".code")):
+        return "Verifier already exists", 400
+
+    try:
+        running = True
+        p = subprocess.run([
+                ezkl,
+                "--bits=16",
+                "-K=17",
+                "verify-evm",
+                "--proof-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".pf"),
+                "--deployment-code-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".code"),
             ],
             capture_output=True,
             text=True
