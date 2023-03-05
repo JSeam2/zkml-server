@@ -9,6 +9,7 @@ verify_ssl = true
 flask = "*"
 werkzeug = "*"
 gunicorn = "*"
+web3-py = "*"
 
 [requires]
 python_version = "3.7"
