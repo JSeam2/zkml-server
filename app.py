@@ -340,33 +340,33 @@ def run_deploy(network_id):
         with open(os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol"), "r") as f:
             file = f.read()
 
-            temp_file = solcx.compile_source(file, output_values=["abi", "bin-runtime"])
-            abi = temp_file['<stdin>:Verifier']['abi']
-            bytecode = temp_file['<stdin:Verifier']['bin-runtime']
-            web3 = Web3(Web3.HTTPProvider(rpc))
+        temp_file = solcx.compile_source(file, output_values=["abi", "bin-runtime"])
+        abi = temp_file['<stdin>:Verifier']['abi']
+        bytecode = temp_file['<stdin:Verifier']['bin-runtime']
+        web3 = Web3(Web3.HTTPProvider(rpc))
 
-            account_from = {
-                'private_key': rpc_endpoint.PRIVATE_KEY,
-                'address': rpc_endpoint.PUBLIC_KEY,
+        account_from = {
+            'private_key': rpc_endpoint.PRIVATE_KEY,
+            'address': rpc_endpoint.PUBLIC_KEY,
+        }
+
+        contract = web3.eth.contract(abi=abi, bytecode=bytecode)
+
+        construct_txn = contract.buildTransaction(
+            {
+                'from': account_from['address'],
+                'nonce': web3.eth.get_transaction_count(account_from['address']),
             }
+        )
 
-            contract = web3.eth.contract(abi=abi, bytecode=bytecode)
+        tx_create = web3.eth.account.sign_transaction(construct_txn, account_from['private_key'])
 
-            construct_txn = contract.buildTransaction(
-                {
-                    'from': account_from['address'],
-                    'nonce': web3.eth.get_transaction_count(account_from['address']),
-                }
-            )
+        tx_hash = web3.eth.send_raw_transaction(tx_create.rawTransaction)
+        tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
 
-            tx_create = web3.eth.account.sign_transaction(construct_txn, account_from['private_key'])
-
-            tx_hash = web3.eth.send_raw_transaction(tx_create.rawTransaction)
-            tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
-
-            return jsonify({
-                "contractaddr": tx_receipt.contractAddress
-            })
+        return jsonify({
+            "contractaddr": tx_receipt.contractAddress
+        })
 
 
         # p = subprocess.run([
