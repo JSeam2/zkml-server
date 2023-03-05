@@ -4,6 +4,7 @@ import os
 import uuid
 import subprocess
 import traceback
+import rpc_endpoint
 
 
 app = Flask("ZKML-server")
@@ -283,6 +284,58 @@ def run_verify():
                 "verify-evm",
                 "--proof-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".pf"),
                 "--deployment-code-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".code"),
+            ],
+            capture_output=True,
+            text=True
+        )
+
+        running = False
+
+        return jsonify({
+            "stdout": p.stdout,
+            "stderr": p.stderr
+        })
+
+    except:
+        err = traceback.format_exc()
+        return "Something bad happened! Please inform the server admin\n" + err, 500
+
+"""
+Deploys verifier
+"""
+@app.route('/run/deploy_verifier/<network_id>', methods=['GET'])
+@cross_origin()
+def run_deploy(network_id):
+    global loaded_inputdata
+    global loaded_onnxmodel
+    global loaded_proofname
+    global running
+    network_id = int(network_id)
+    if loaded_inputdata is None or loaded_onnxmodel is None or loaded_proofname is None:
+        return "Input Data or Onnx Model not loaded", 400
+    if running:
+        return "Already running please wait for completion", 400
+    if not os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol")):
+        return "Proof does not exists", 400
+
+    rpc = rpc_endpoint.ETH_MAINNET
+    if network_id == 5:
+        rpc = rpc_endpoint.ETH_GOERLI
+
+    if network_id == 5001:
+        rpc = rpc_endpoint.MANTLE_TESTNET
+
+    if network_id == 80001:
+        rpc = rpc_endpoint.POLYGON_MUMBAI
+
+    try:
+        running = True
+        p = subprocess.run([
+                ezkl,
+                "deploy-verifier-evm"
+                "-S", os.path.join(os.getcwd(), "mnemonic.txt"),
+                "-U", rpc,
+                "--sol-code-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol"),
             ],
             capture_output=True,
             text=True
