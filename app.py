@@ -11,6 +11,7 @@ ezkl = "./ezkl/target/release/ezkl"
 # the server cannot accomodate more than one proof
 loaded_onnxmodel = None
 loaded_inputdata = None
+loaded_proofname = None
 running = False
 
 """
@@ -93,13 +94,36 @@ def download_onnxmodel(filename):
     return send_file(os.path.join("onnxmodel", sanitized_filename), as_attachment=True)
 
 """
+Lists all generated data stored on the server
+"""
+@app.route('/list/generated', methods=['GET'])
+def list_generated():
+    filelist = os.listdir(os.path.join('generated'))
+    filelist.remove('.gitkeep')
+    return jsonify({
+        "list": filelist
+    })
+
+"""
+Download generated data stored on the server
+"""
+@app.route('/download/generated/<filename>', methods=['GET'])
+def download_generated(filename):
+    sanitized_filename = str(filename)
+
+    return send_file(os.path.join("generated", sanitized_filename), as_attachment=True)
+
+"""
 Sets the model and input to be used
 """
 @app.route('/run/initialize', methods=['GET', 'POST'])
 def set_model_input():
     global loaded_inputdata
     global loaded_onnxmodel
+    global loaded_proofname
     if request.method == "POST":
+        if running:
+            return "Already running please wait for completion", 400
 
         content = request.json
         inputdata = content['inputdata'].strip()
@@ -108,30 +132,65 @@ def set_model_input():
         loaded_inputdata = os.path.join("inputdata", inputdata)
         loaded_onnxmodel = os.path.join("onnxmodel", onnxmodel)
 
+        loaded_proofname = "inputdata_" + loaded_inputdata[10:46] \
+            + "+" + "onnxmodel_" + loaded_onnxmodel[10:46]
+
         return jsonify({
             "loaded_inputdata": loaded_inputdata,
-            "loaded_onnxmodel": loaded_onnxmodel
+            "loaded_onnxmodel": loaded_onnxmodel,
+            "proof_name": loaded_proofname
         })
 
     if request.method == "GET":
         return jsonify({
             "loaded_inputdata": loaded_inputdata,
-            "loaded_onnxmodel": loaded_onnxmodel
+            "loaded_onnxmodel": loaded_onnxmodel,
+            "proof_name": loaded_proofname
         })
 
 
 """
-Generate EVM Proof and sends proof.pf and proof.vk to user
+Generates evm proof
 """
-@app.route('/gen_evm_proof', methods=['POST'])
+@app.route('/run/gen_evm_proof', methods=['GET'])
 def gen_evm_proof():
-    if request.method == 'POST':
-        p = subprocess.run([ezkl], capture_output=True, text=True)
+    global loaded_inputdata
+    global loaded_onnxmodel
+    global loaded_proofname
+    global running
+    if loaded_inputdata is None or loaded_onnxmodel is None or loaded_proofname is None:
+        return "Input Data or Onnx Model not loaded", 400
+    if running:
+        return "Already running please wait for completion", 400
+
+    try:
+        running = True
+        p = subprocess.run([
+                ezkl,
+                "--bits=16",
+                "-K=17",
+                "prove",
+                "-D " + os.path.join(os.getcwd(), loaded_inputdata),
+                "-M " + os.path.join(os.getcwd(), loaded_onnxmodel),
+                "--proof-path " + os.path.join(os.getcwd(), "generated", loaded_proofname + ".pf"),
+                "--vk-path " + os.path.join(os.getcwd(), "generated", loaded_proofname + ".vk"),
+                "--params-path=" + os.path.join(os.getcwd(), "kzg.params"),
+                "--transcript=evm"
+            ],
+            capture_output=True,
+            text=True
+        )
+
+        running = False
 
         return jsonify({
             "stdout": p.stdout,
             "stderr": p.stderr
         })
+
+    except:
+        running = False
+        return "Something bad happened! Please inform the server admin", 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
