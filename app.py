@@ -345,13 +345,10 @@ def run_deploy(network_id):
         bytecode = temp_file['<stdin>:Verifier']['bin-runtime']
         web3 = Web3(Web3.HTTPProvider(rpc))
 
-        account_from = {
-            'private_key': rpc_endpoint.PRIVATE_KEY,
-            'address': rpc_endpoint.PUBLIC_KEY,
-        }
+        account_from = { 'private_key': rpc_endpoint.PRIVATE_KEY, 'address': rpc_endpoint.PUBLIC_KEY }
 
         contract = web3.eth.contract(abi=abi, bytecode=bytecode)
-        nonce = web3.eth.get_transaction_count(account_from['address'])
+        nonce = web3.eth.getTransactionCount(account_from['address'])
 
         construct_txn = contract.constructor().buildTransaction(
             {
