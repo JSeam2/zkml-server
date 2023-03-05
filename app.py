@@ -390,6 +390,7 @@ def run_deploy(network_id):
     except:
         running = False
         err = traceback.format_exc()
+        print(err)
         return "Something bad happened! Please inform the server admin\n" + err, 500
 
 if __name__ == "__main__":
