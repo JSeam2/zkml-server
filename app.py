@@ -332,7 +332,7 @@ def run_deploy(network_id):
         running = True
         p = subprocess.run([
                 ezkl,
-                "deploy-verifier-evm"
+                "deploy-verifier-evm",
                 "-S", os.path.join(os.getcwd(), "mnemonic.txt"),
                 "-U", rpc,
                 "--sol-code-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol"),
