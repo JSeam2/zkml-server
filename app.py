@@ -246,7 +246,7 @@ def gen_evm_verifier():
 Verifies proof
 """
 @app.route('/run/verify', methods=['GET'])
-def gen_evm_verifier():
+def run_verify():
     global loaded_inputdata
     global loaded_onnxmodel
     global loaded_proofname
