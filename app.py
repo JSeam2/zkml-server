@@ -209,7 +209,7 @@ def gen_evm_verifier():
         return "Input Data or Onnx Model not loaded", 400
     if running:
         return "Already running please wait for completion", 400
-    if os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol")) or \
+    if os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol")) and \
         os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".code")):
         return "Verifier already exists", 400
 
