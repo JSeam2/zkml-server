@@ -352,7 +352,7 @@ def run_deploy(network_id):
 
         contract = web3.eth.contract(abi=abi, bytecode=bytecode)
 
-        construct_txn = contract.buildTransaction(
+        construct_txn = contract.constructor().buildTransaction(
             {
                 'from': account_from['address'],
                 'nonce': web3.eth.get_transaction_count(account_from['address']),
