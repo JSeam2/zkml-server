@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS, cross_origin
 import os
 import uuid
 import subprocess
@@ -6,6 +7,8 @@ import traceback
 
 
 app = Flask("ZKML-server")
+cors = CORS(app)
+
 ezkl = "./ezkl/target/release/ezkl"
 
 # flags to only allow for only one proof
@@ -19,6 +22,7 @@ running = False
 Simple single session prover
 """
 @app.route('/')
+@cross_origin
 def index():
     return "Extend your smart contracts with Gelkin"
 
@@ -26,6 +30,7 @@ def index():
 Upload input data for proving, no validation atm
 """
 @app.route('/upload/inputdata', methods=['POST'])
+@cross_origin
 def upload_inputdata():
     if request.method == 'POST':
         inputdata = request.files['inputdata']
@@ -41,6 +46,7 @@ def upload_inputdata():
 Lists all input data stored on the server
 """
 @app.route('/list/inputdata', methods=['GET'])
+@cross_origin
 def list_inputdata():
     filelist = os.listdir(os.path.join('inputdata'))
     filelist.remove('.gitkeep')
@@ -52,6 +58,7 @@ def list_inputdata():
 Download input data stored on the server
 """
 @app.route('/download/inputdata/<filename>', methods=['GET'])
+@cross_origin
 def download_inputdata(filename):
     sanitized_filename = str(filename)
 
@@ -61,6 +68,7 @@ def download_inputdata(filename):
 Upload onnx model for proving, no validation atm
 """
 @app.route('/upload/onnxmodel', methods=['POST'])
+@cross_origin
 def upload_onnxmodel():
     if request.method == 'POST':
         # save the single onnx file
@@ -78,6 +86,7 @@ def upload_onnxmodel():
 Lists all onnx data stored on the server
 """
 @app.route('/list/onnxmodel', methods=['GET'])
+@cross_origin
 def list_onnxmodel():
     filelist = os.listdir(os.path.join('onnxmodel'))
     filelist.remove('.gitkeep')
@@ -89,6 +98,7 @@ def list_onnxmodel():
 Download input data stored on the server
 """
 @app.route('/download/onnxmodel/<filename>', methods=['GET'])
+@cross_origin
 def download_onnxmodel(filename):
     sanitized_filename = str(filename)
 
@@ -98,6 +108,7 @@ def download_onnxmodel(filename):
 Lists all generated data stored on the server
 """
 @app.route('/list/generated', methods=['GET'])
+@cross_origin
 def list_generated():
     filelist = os.listdir(os.path.join('generated'))
     filelist.remove('.gitkeep')
@@ -109,6 +120,7 @@ def list_generated():
 Download generated data stored on the server
 """
 @app.route('/download/generated/<filename>', methods=['GET'])
+@cross_origin
 def download_generated(filename):
     sanitized_filename = str(filename)
 
@@ -118,6 +130,7 @@ def download_generated(filename):
 Sets the model and input to be used
 """
 @app.route('/run/initialize', methods=['GET', 'POST'])
+@cross_origin
 def set_model_input():
     global loaded_inputdata
     global loaded_onnxmodel
@@ -154,6 +167,7 @@ def set_model_input():
 Generates evm proof
 """
 @app.route('/run/gen_evm_proof', methods=['GET'])
+@cross_origin
 def gen_evm_proof():
     global loaded_inputdata
     global loaded_onnxmodel
@@ -200,6 +214,7 @@ def gen_evm_proof():
 Generates evm verifier
 """
 @app.route('/run/gen_evm_verifier', methods=['GET'])
+@cross_origin
 def gen_evm_verifier():
     global loaded_inputdata
     global loaded_onnxmodel
@@ -246,6 +261,7 @@ def gen_evm_verifier():
 Verifies proof using .code
 """
 @app.route('/run/verify', methods=['GET'])
+@cross_origin
 def run_verify():
     global loaded_inputdata
     global loaded_onnxmodel
