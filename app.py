@@ -355,7 +355,7 @@ def run_deploy(network_id):
         construct_txn = contract.constructor().buildTransaction(
             {
                 'from': account_from['address'],
-                'nonce': nonce
+                'nonce': nonce,
                 "maxFeePerGas": gas_fee,
                 "maxPriorityFeePerGas": priority_fee
             }
