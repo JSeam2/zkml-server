@@ -334,9 +334,11 @@ def run_deploy(network_id):
         running = True
 
         # compile contract
-        temp_file = solcx.compile_files(os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol"))
+        temp_file = solcx.compile_files(
+            [os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol")],
+        )
         abi = temp_file[loaded_proofname + ".sol" + ':Verifier']['abi']
-        bytecode = temp_file[loaded_proofname + ".sol" + ':Verifier']['bin']
+        bytecode = temp_file[loaded_proofname + ".sol" + ':Verifier']['bin-runtime']
         web3 = Web3(Web3.HTTPProvider(rpc))
 
         account_from = {
