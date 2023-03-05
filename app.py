@@ -340,7 +340,7 @@ def run_deploy(network_id):
         with open(os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol"), "r") as f:
             file = f.read()
 
-            temp_file = solcx.compile_source(file)
+            temp_file = solcx.compile_source(file, output_values=["abi", "bin-runtime"])
             abi = temp_file['<stdin>:Verifier']['abi']
             bytecode = temp_file['<stdin:Verifier']['bin-runtime']
             web3 = Web3(Web3.HTTPProvider(rpc))
