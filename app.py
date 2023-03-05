@@ -341,8 +341,8 @@ def run_deploy(network_id):
             file = f.read()
 
         temp_file = solcx.compile_source(file, output_values=["abi", "bin-runtime"])
-        abi = temp_file['<stdin>:Verifier>']['abi']
-        bytecode = temp_file['<stdin:Verifier>']['bin-runtime']
+        abi = temp_file['<stdin>:Verifier']['abi']
+        bytecode = temp_file['<stdin>:Verifier']['bin-runtime']
         web3 = Web3(Web3.HTTPProvider(rpc))
 
         account_from = {
