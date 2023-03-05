@@ -202,7 +202,7 @@ def gen_evm_proof():
 Generates evm verifier
 """
 @app.route('/run/gen_evm_verifier', methods=['GET'])
-def gen_evm_proof():
+def gen_evm_verifier():
     global loaded_inputdata
     global loaded_onnxmodel
     global loaded_proofname
