@@ -165,7 +165,7 @@ def gen_evm_proof():
         return "Already running please wait for completion", 400
     if os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".pf")) or \
         os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".vk")):
-        return "Proof already exists"
+        return "Proof already exists", 400
 
     try:
         running = True
@@ -173,10 +173,60 @@ def gen_evm_proof():
                 ezkl,
                 "--bits=16",
                 "-K=17",
+                "--public-inputs=False",
+                "--public-outputs=True",
                 "prove",
                 "-D", os.path.join(os.getcwd(), loaded_inputdata),
                 "-M", os.path.join(os.getcwd(), loaded_onnxmodel),
                 "--proof-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".pf"),
+                "--vk-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".vk"),
+                "--params-path=" + os.path.join(os.getcwd(), "kzg.params"),
+                "--transcript=evm"
+            ],
+            capture_output=True,
+            text=True
+        )
+
+        running = False
+
+        return jsonify({
+            "stdout": p.stdout,
+            "stderr": p.stderr
+        })
+
+    except:
+        err = traceback.format_exc()
+        return "Something bad happened! Please inform the server admin\n" + err, 500
+
+"""
+Generates evm verifier
+"""
+@app.route('/run/gen_evm_verifier', methods=['GET'])
+def gen_evm_proof():
+    global loaded_inputdata
+    global loaded_onnxmodel
+    global loaded_proofname
+    global running
+    if loaded_inputdata is None or loaded_onnxmodel is None or loaded_proofname is None:
+        return "Input Data or Onnx Model not loaded", 400
+    if running:
+        return "Already running please wait for completion", 400
+    if os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol")) or \
+        os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".code")):
+        return "Verifier already exists", 400
+
+    try:
+        running = True
+        p = subprocess.run([
+                ezkl,
+                "--bits=16",
+                "-K=17",
+                "--public-inputs=False",
+                "--public-outputs=True",
+                "create-evm-verifier",
+                "-D", os.path.join(os.getcwd(), loaded_inputdata),
+                "-M", os.path.join(os.getcwd(), loaded_onnxmodel),
+                "--deployment-code-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".code"),
                 "--vk-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".vk"),
                 "--params-path=" + os.path.join(os.getcwd(), "kzg.params"),
                 "--transcript=evm"

@@ -24,6 +24,12 @@ RUN set -ex && \
 RUN set -ex && \
     pip install -r requirements.txt
 
+# install solc
+RUN set -ex && \
+    pip install solc-select; \
+    solc-select install 0.8.17; \
+    solc-select use 0.8.17
+
 # for building ezkl separately
 # Get Rust
 # RUN curl https://sh.rustup.rs -sSf | bash -s -- --default-toolchain nightly -y
