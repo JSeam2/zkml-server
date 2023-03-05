@@ -243,7 +243,7 @@ def gen_evm_verifier():
         return "Something bad happened! Please inform the server admin\n" + err, 500
 
 """
-Verifies proof
+Verifies proof using .code
 """
 @app.route('/run/verify', methods=['GET'])
 def run_verify():
@@ -255,9 +255,8 @@ def run_verify():
         return "Input Data or Onnx Model not loaded", 400
     if running:
         return "Already running please wait for completion", 400
-    if os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol")) or \
-        os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".code")):
-        return "Verifier already exists", 400
+    if not os.path.exists(os.path.join(os.getcwd(), "generated", loaded_proofname + ".code")):
+        return "Proof does not exists", 400
 
     try:
         running = True
