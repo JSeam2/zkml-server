@@ -10,6 +10,7 @@ flask = "*"
 werkzeug = "*"
 gunicorn = "*"
 web3-py = "*"
+web3 = "*"
 
 [requires]
 python_version = "3.7"
