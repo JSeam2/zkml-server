@@ -349,11 +349,16 @@ def run_deploy(network_id):
 
         contract = web3.eth.contract(abi=abi, bytecode=bytecode)
         nonce = web3.eth.getTransactionCount(account_from['address'])
+        priority_fee = we3.eth.max_priority_fee
+        gas_fee = web3.eth.gas_price + 40000000000
 
         construct_txn = contract.constructor().buildTransaction(
             {
                 'from': account_from['address'],
                 'nonce': nonce,
+                "maxFeePerGas": gas_fee,
+                "maxPriorityFeePerGas": priority_fee
+
             }
         )
 
