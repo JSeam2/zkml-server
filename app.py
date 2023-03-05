@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, send_file
 import os
 import uuid
 import subprocess
+import traceback
 
 
 app = Flask("ZKML-server")
@@ -189,8 +190,8 @@ def gen_evm_proof():
         })
 
     except:
-        running = False
-        return "Something bad happened! Please inform the server admin", 500
+        err = traceback.format_exc()
+        return "Something bad happened! Please inform the server admin\n" + err, 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
