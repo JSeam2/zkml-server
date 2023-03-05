@@ -225,7 +225,7 @@ def gen_evm_verifier():
                 "--deployment-code-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".code"),
                 "--vk-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".vk"),
                 "--params-path=" + os.path.join(os.getcwd(), "kzg.params"),
-                "--transcript=evm"
+                "--sol-code-path", os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol"),
             ],
             capture_output=True,
             text=True
