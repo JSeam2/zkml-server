@@ -210,6 +210,7 @@ def gen_evm_proof():
         })
 
     except:
+        running = False
         err = traceback.format_exc()
         return "Something bad happened! Please inform the server admin\n" + err, 500
 
@@ -257,6 +258,7 @@ def gen_evm_verifier():
         })
 
     except:
+        running = False
         err = traceback.format_exc()
         return "Something bad happened! Please inform the server admin\n" + err, 500
 
@@ -299,6 +301,7 @@ def run_verify():
         })
 
     except:
+        running = False
         err = traceback.format_exc()
         return "Something bad happened! Please inform the server admin\n" + err, 500
 
@@ -334,35 +337,36 @@ def run_deploy(network_id):
         running = True
 
         # compile contract
-        temp_file = solcx.compile_files(
-            [os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol")],
-        )
-        abi = temp_file[loaded_proofname + ".sol" + ':Verifier']['abi']
-        bytecode = temp_file[loaded_proofname + ".sol" + ':Verifier']['bin-runtime']
-        web3 = Web3(Web3.HTTPProvider(rpc))
+        with open(os.path.join(os.getcwd(), "generated", loaded_proofname + ".sol"), "r") as f:
+            file = f.read()
 
-        account_from = {
-            'private_key': rpc_endpoint.PRIVATE_KEY,
-            'address': rpc_endpoint.PUBLIC_KEY,
-        }
+            temp_file = solcx.compile_source(file)
+            abi = temp_file['<stdin>:Verifier']['abi']
+            bytecode = temp_file['<stdin:Verifier']['bin-runtime']
+            web3 = Web3(Web3.HTTPProvider(rpc))
 
-        contract = web3.eth.contract(abi=abi, bytecode=bytecode)
-
-        construct_txn = contract.buildTransaction(
-            {
-                'from': account_from['address'],
-                'nonce': web3.eth.get_transaction_count(account_from['address']),
+            account_from = {
+                'private_key': rpc_endpoint.PRIVATE_KEY,
+                'address': rpc_endpoint.PUBLIC_KEY,
             }
-        )
 
-        tx_create = web3.eth.account.sign_transaction(construct_txn, account_from['private_key'])
+            contract = web3.eth.contract(abi=abi, bytecode=bytecode)
 
-        tx_hash = web3.eth.send_raw_transaction(tx_create.rawTransaction)
-        tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+            construct_txn = contract.buildTransaction(
+                {
+                    'from': account_from['address'],
+                    'nonce': web3.eth.get_transaction_count(account_from['address']),
+                }
+            )
 
-        return jsonify({
-            "contractaddr": tx_receipt.contractAddress
-        })
+            tx_create = web3.eth.account.sign_transaction(construct_txn, account_from['private_key'])
+
+            tx_hash = web3.eth.send_raw_transaction(tx_create.rawTransaction)
+            tx_receipt = web3.eth.wait_for_transaction_receipt(tx_hash)
+
+            return jsonify({
+                "contractaddr": tx_receipt.contractAddress
+            })
 
 
         # p = subprocess.run([
@@ -384,6 +388,7 @@ def run_deploy(network_id):
         # })
 
     except:
+        running = False
         err = traceback.format_exc()
         return "Something bad happened! Please inform the server admin\n" + err, 500
 
